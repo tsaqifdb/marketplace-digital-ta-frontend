@@ -21,7 +21,7 @@ const RegisterForm = () => {
             name: formData.get('name') as string,
             email: formData.get('email') as string,
             password: formData.get('password') as string,
-            role: formData.get('role') as 'admin' | 'curator' | 'seller' | 'buyer',
+            role: formData.get('role') as 'seller' | 'buyer',
         };
 
         try {

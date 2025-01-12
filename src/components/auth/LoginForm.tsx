@@ -2,33 +2,39 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';  // Pastikan import Link dari next/link
+import Link from 'next/link';
 import { LoginInput } from '@/types/auth';
 import { authService } from '@/services/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 const LoginForm = () => {
     const router = useRouter();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { login } = useAuth();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        const formData = new FormData(e.currentTarget);
-        const data: LoginInput = {
-            email: formData.get('email') as string,
-            password: formData.get('password') as string,
-        };
-
         try {
+            const formData = new FormData(e.currentTarget);
+            const data: LoginInput = {
+                email: formData.get('email') as string,
+                password: formData.get('password') as string,
+            };
+
+            console.log('Attempting login with:', data);  // Debug log
+            
             const response = await authService.login(data);
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user));
+            console.log('Login response:', response);  // Debug log
+            
+            login(response.token, response.user);
             router.push('/dashboard');
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to login');
+            console.error('Login error:', err);  // Debug log
+            setError(err.response?.data?.error || 'Failed to login. Please check your credentials.');
         } finally {
             setLoading(false);
         }
@@ -57,7 +63,8 @@ const LoginForm = () => {
                             name="email"
                             type="email"
                             required
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
+                            placeholder="you@example.com"
                         />
                     </div>
                     <div>
@@ -69,7 +76,8 @@ const LoginForm = () => {
                             name="password"
                             type="password"
                             required
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder:text-gray-400"
+                            placeholder="••••••••"
                         />
                     </div>
                     <div>
